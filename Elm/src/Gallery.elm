@@ -5,10 +5,38 @@ import Browser as B
 
 -- Model
 type alias Model =
-  { images: List String
+  { books: List Book
+  , shelf: Shelf
   }
 
-init = Model ["hello.jpg", "world.png"]
+type Shelf
+  = Shelf (Maybe Book) Book (Maybe Book)
+  | Empty
+
+type AuthorName
+  = Name String
+  | Anonymous
+
+type alias Book =
+  { title : String
+  , sinipsis : String
+  , author : AuthorName
+  }
+
+init : Model
+init =
+  { books = [
+    { title = "Odisea"
+    , sinipsis = "..."
+    , author = Name "Homero"
+    },
+    { title = "The book I came up with"
+    , sinipsis = "..."
+    , author = Anonymous
+    }
+  ]
+  , shelf = Empty
+  }
 
 type Msg
   = Next
@@ -19,11 +47,11 @@ view : Model -> H.Html Msg
 view model =
   H.div
     []
-    <| List.map viewImage model.images
+    <| List.map viewImage model.books
 
-viewImage : String -> H.Html Msg
-viewImage image =
-  H.div [][ H.text image ]
+viewImage : Book -> H.Html Msg
+viewImage { title } =
+  H.div [][ H.text title ]
 
 
 -- Update
