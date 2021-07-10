@@ -7,13 +7,8 @@ import Browser as B
 -- Model
 type alias Model =
   { books: List Book
-  , shelf: Shelf
   , start : Int
   }
-
-type Shelf
-  = Shelf (List Book) Book (List Book)
-  | Empty
 
 type AuthorName
   = Name String
@@ -49,7 +44,6 @@ init =
     , author = Name "Aldous Huxley"
     }
   ]
-  , shelf = Empty
   , start = 0
   }
 
