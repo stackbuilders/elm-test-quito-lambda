@@ -2,8 +2,16 @@ module LibraryTest exposing (..)
 
 import Test exposing (..)
 import Expect as E
+import Json.Decode as JD
+import Json.Encode as JE
 import Library as L
 import Fuzz as F
+import ProgramTest as PT
+import Test.Html.Selector as S
+import SimulatedEffect.Cmd as SCmd
+import SimulatedEffect.Http as SHttp
+
+-- Unit test
 
 upSpec : Test
 upSpec =
@@ -31,4 +39,47 @@ downSpec =
   , fuzz F.int "down start <= start" <|
     \start ->
         L.down start |> E.atMost start
+  ]
+
+-- Integration test
+fixture : L.Book
+fixture = L.Book "Foo" "..." L.Anonymous
+
+app : PT.ProgramTest L.Model L.Msg L.Eff
+app =
+  PT.createElement
+  { init = \_ -> L.init
+  , view = L.view
+  , update = L.update
+  }
+  |> PT.withSimulatedEffects runEff
+  |> PT.start ()
+
+runEff : L.Eff -> PT.SimulatedEffect L.Msg
+runEff eff =
+  case eff of
+    L.NoOp -> SCmd.none
+    L.GetBookList { url, onResult } ->
+      SHttp.get
+      { url = url, expect = SHttp.expectJson onResult (JD.list L.bookDecoder) }
+
+appTest : Test
+appTest =
+  describe "app"
+  [ test "shows prev buttons" <|
+    \_ ->
+      app
+      |> PT.expectViewHas [ S.text "Prev" ]
+  , test "shows next buttons" <|
+    \_ ->
+      app
+      |> PT.expectViewHas [ S.text "Next" ]
+  , test "shows book after loading books" <|
+    \_ ->
+      app
+      |> PT.simulateHttpOk
+        "GET"
+        "http://localhost:3000/books"
+        (JE.encode 0 <| JE.list L.bookEncoder [fixture])
+      |> PT.expectViewHas [ S.text fixture.title ]
   ]
