@@ -8,6 +8,28 @@ import Http
 import Json.Decode as D
 import Json.Encode as E
 
+
+-- Eff
+
+type Eff
+  = NoOp
+  | GetBookList
+    { url: String
+    , onResult: Result Http.Error (List Book) -> Msg
+    }
+
+
+run: Eff -> Cmd Msg
+run eff =
+  case eff of
+    NoOp -> Cmd.none
+    GetBookList { url, onResult } ->
+      Http.get
+      { url = url
+      , expect = Http.expectJson onResult (D.list bookDecoder)
+      }
+
+
 -- Model
 type alias Model =
   { books: List Book
@@ -31,9 +53,8 @@ type Msg
   | Prev
   | GetBooks (Result Http.Error (List Book))
 
-
-init : (Model, Cmd Msg)
-init = (
+init : (Model, Eff)
+init =(
   { books = []
   , start = 0
   , errors = []
@@ -41,11 +62,11 @@ init = (
 
 -- HTTP
 
-getBooks : Cmd Msg
+getBooks : Eff
 getBooks =
-  Http.get
+  GetBookList
     { url = "http://localhost:3000/books"
-    , expect = Http.expectJson GetBooks (D.list bookDecoder)
+    , onResult = GetBooks
     }
 
 -- JSON
@@ -132,19 +153,19 @@ slice start end list =
   <| list
 
 -- Update
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> (Model, Eff)
 update msg model =
   case msg of
     Next ->
       ({ model | start = up model.start model.books
-      }, Cmd.none)
+      }, NoOp)
     Prev ->
-      ({ model | start = down model.start }, Cmd.none)
+      ({ model | start = down model.start }, NoOp)
     GetBooks (Ok books) ->
-      ({ model | books = books, start = 0 }, Cmd.none)
+      ({ model | books = books, start = 0 }, NoOp)
 
     GetBooks _ ->
-      ({ model | books = [], errors = ["Could not get books"], start = 0 }, Cmd.none)
+      ({ model | books = [], errors = ["Could not get books"], start = 0 }, NoOp)
 
 
 up start books =
@@ -161,8 +182,8 @@ down start =
 main : Program () Model Msg
 main =
   B.element
-    { init = \flags -> init
-    , update = update
+    { init = \flags -> init |> Tuple.mapSecond run
+    , update = \msg model -> update msg model |> Tuple.mapSecond run
     , view = view
     , subscriptions = \_ -> Sub.none
     }
