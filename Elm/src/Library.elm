@@ -3,6 +3,7 @@ module Library exposing (..)
 import Browser as B
 import Html as H
 import Html.Events as HE
+import Http
 import Json.Decode as D
 import Json.Encode as E
 
@@ -25,6 +26,16 @@ type alias Book =
 type Msg
   = Next
   | Prev
+
+-- HTTP
+
+getBooks : Cmd Msg
+getBooks =
+  Http.get
+    { url = "http://localhost:3000/books"
+    , expect = Http.expectJson GetBooks (D.list bookDecoder)
+    }
+
 
 init : Model
 init =
