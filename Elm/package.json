@@ -1,0 +1,15 @@
+{
+  "name": "Elm",
+  "version": "1.0.0",
+  "description": "## Create a project",
+  "main": "index.js",
+  "scripts": {
+    "test": "elm-test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "elm-test": "^0.19.1-revision7"
+  }
+}
