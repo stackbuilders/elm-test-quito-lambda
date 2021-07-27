@@ -59,3 +59,20 @@ slice start end list =
   List.drop start
   <| List.take end
   <| list
+
+-- Update
+update : Msg -> Model -> Model
+update msg model =
+  case msg of
+    Next ->
+      { model | start =
+          if model.start < List.length model.books - 3
+          then model.start + 1
+          else model.start
+     }
+    Prev ->
+     { model | start =
+         if model.start > 0
+         then model.start - 1
+         else model.start
+     }
