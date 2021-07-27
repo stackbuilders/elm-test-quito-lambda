@@ -1,5 +1,6 @@
 module Library exposing (..)
 
+import Browser as B
 import Html as H
 import Html.Events as HE
 
@@ -23,6 +24,32 @@ type Msg
   = Next
   | Prev
 
+init : Model
+init =
+  { books = [
+    { title = "Iliada"
+    , synopsis = "La batalla entre aqueos y troyanos"
+    , author = Name "Homero"
+    },
+    { title = "Odisea"
+    , synopsis = "Las aventuras de Odiseo en su camino a Ítaca desde Troya"
+    , author = Name "Homero"
+    },
+    { title = "El libro que nunca escribí"
+    , synopsis = "Habla sobre las cosas que nunca dije y las letras que no escribí"
+    , author = Anonymous
+    },
+    { title = "La rebelión de la granja"
+    , synopsis = "¿Cómo terminará la rebelión de los animales?"
+    , author = Name "George Orwell"
+    },
+    { title = "Un mundo feliz"
+    , synopsis = "El mundo ideal donde todos son felices, ¿o no?"
+    , author = Name "Aldous Huxley"
+    }
+  ]
+  , start = 0
+  }
 
 -- View
 view : Model -> H.Html Msg
@@ -76,3 +103,12 @@ update msg model =
          then model.start - 1
          else model.start
      }
+
+-- Main
+main : Program () Model Msg
+main =
+  B.sandbox
+    { init = init
+    , update = update
+    , view = view
+    }
