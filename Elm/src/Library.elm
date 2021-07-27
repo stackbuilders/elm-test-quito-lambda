@@ -136,22 +136,26 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Next ->
-      ({ model | start =
-        if model.start < List.length model.books - 3
-           then model.start + 1
-           else model.start
+      ({ model | start = up model.start model.books
       }, Cmd.none)
     Prev ->
-      ({ model | start =
-        if model.start > 0
-           then model.start - 1
-           else model.start
-       }, Cmd.none)
+      ({ model | start = down model.start }, Cmd.none)
     GetBooks (Ok books) ->
       ({ model | books = books, start = 0 }, Cmd.none)
 
     GetBooks _ ->
       ({ model | books = [], errors = ["Could not get books"], start = 0 }, Cmd.none)
+
+
+up start books =
+    if start < List.length books - 3
+       then start + 1
+       else start
+
+down start =
+  if start > 0
+     then start - 1
+     else start
 
 -- Main
 main : Program () Model Msg
