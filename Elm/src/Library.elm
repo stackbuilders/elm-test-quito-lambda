@@ -3,8 +3,8 @@ module Library exposing (..)
 import Browser as B
 import Html as H
 import Html.Events as HE
-import Json.Decoder as D
-import Json.Encoder as E
+import Json.Decode as D
+import Json.Encode as E
 
 -- Model
 type alias Model =
