@@ -82,4 +82,41 @@ appTest =
         "http://localhost:3000/books"
         (JE.encode 0 <| JE.list L.bookEncoder [fixture])
       |> PT.expectViewHas [ S.text fixture.title ]
+  , test "show newest book on next" <|
+    \_ ->
+      let
+        books = [fixture, fixture, fixture, { fixture | title = "New book" }]
+      in
+        app
+        |> PT.simulateHttpOk
+          "GET"
+          "http://localhost:3000/books"
+          (JE.encode 0 <| JE.list L.bookEncoder books)
+        |> PT.clickButton "Next"
+        |> PT.expectViewHas [ S.text "New book" ]
+  , test "show oldest book on next" <|
+    \_ ->
+      let
+        books = [{ fixture | title = "Old book" }, fixture, fixture, fixture]
+      in
+        app
+        |> PT.simulateHttpOk
+          "GET"
+          "http://localhost:3000/books"
+          (JE.encode 0 <| JE.list L.bookEncoder books)
+        |> PT.clickButton "Next"
+        |> PT.clickButton "Prev"
+        |> PT.expectViewHas [ S.text "Old book" ]
+  , test "hides oldest book on next" <|
+    \_ ->
+      let
+        books = [{ fixture | title = "Old book" }, fixture, fixture, fixture]
+      in
+        app
+        |> PT.simulateHttpOk
+          "GET"
+          "http://localhost:3000/books"
+          (JE.encode 0 <| JE.list L.bookEncoder books)
+        |> PT.clickButton "Next"
+        |> PT.expectViewHasNot [ S.text "Old book" ]
   ]
