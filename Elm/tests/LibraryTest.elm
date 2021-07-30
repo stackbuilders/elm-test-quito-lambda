@@ -13,35 +13,47 @@ import SimulatedEffect.Http as SHttp
 
 -- Unit test
 
-upSpec : Test
-upSpec =
+upTest : Test
+upTest =
   describe "up"
-  [ test "returns 1 when start is 0 and list has N elements" <|
+  [ test "gives start = 0 and books = [1,2,3,4,5] returns 1" <|
     \_ ->
-      L.up 0 [1, 2, 3, 4, 5] |> E.equal 1
-  , test "returns 2 when start is 1 and list has N elements" <|
+      L.up 0 [1, 2, 3, 4, 5]
+      |> E.equal 1
+  , test "given start = 2 and books = [1,2,3,4,5] returns 2" <|
     \_ ->
-      L.up 1 [1, 2, 3, 4, 5] |> E.equal 2
-  , test "returns start when list is small" <|
-    \_ ->
-      L.up 0 [1, 2] |> E.equal 0
-  , fuzz2 F.int (F.list F.int)"up start list >= start" <|
-    \start ls ->
-        L.up start ls |> E.atLeast start
+      L.up 2 [1, 2, 3, 4, 5]
+      |> E.equal 2
   ]
 
-downSpec : Test
-downSpec =
+downTest : Test
+downTest =
   describe "down"
-  [ test "returns 0 when start is 1 and list has N elements" <|
+  [ test "given start = 1 returns 0" <|
     \_ ->
-      L.down 1 |> E.equal 0
-  , fuzz F.int "down start <= start" <|
-    \start ->
-        L.down start |> E.atMost start
+      L.down 1
+      |> E.equal 0
+  , test "given start = 0 returns 0" <|
+    \_ ->
+      L.down 0
+      |> E.equal 0
+  ]
+
+fuzzJSON : Test
+fuzzJSON =
+  describe "(decode . encode) x == x"
+  [ fuzz F.string "decode/encode are idempotent" <|
+    \str ->
+      let
+        book = L.Book str str (L.Name str)
+      in
+        JE.encode 0 (L.bookEncoder book)
+        |> JD.decodeString L.bookDecoder
+        |> E.equal (Ok book)
   ]
 
 -- Integration test
+
 fixture : L.Book
 fixture = L.Book "Foo" "..." L.Anonymous
 
@@ -63,6 +75,8 @@ runEff eff =
       SHttp.get
       { url = url, expect = SHttp.expectJson onResult (JD.list L.bookDecoder) }
 
+
+
 appTest : Test
 appTest =
   describe "app"
@@ -78,9 +92,9 @@ appTest =
     \_ ->
       app
       |> PT.simulateHttpOk
-        "GET"
-        "http://localhost:3000/books"
-        (JE.encode 0 <| JE.list L.bookEncoder [fixture])
+          "GET"
+          "http://localhost:3000/books"
+          (JE.encode 0 <| JE.list L.bookEncoder [fixture])
       |> PT.expectViewHas [ S.text fixture.title ]
   , test "show newest book on next" <|
     \_ ->
@@ -89,9 +103,9 @@ appTest =
       in
         app
         |> PT.simulateHttpOk
-          "GET"
-          "http://localhost:3000/books"
-          (JE.encode 0 <| JE.list L.bookEncoder books)
+            "GET"
+            "http://localhost:3000/books"
+            (JE.encode 0 <| JE.list L.bookEncoder books)
         |> PT.clickButton "Next"
         |> PT.expectViewHas [ S.text "New book" ]
   , test "show oldest book on next" <|
@@ -101,9 +115,9 @@ appTest =
       in
         app
         |> PT.simulateHttpOk
-          "GET"
-          "http://localhost:3000/books"
-          (JE.encode 0 <| JE.list L.bookEncoder books)
+            "GET"
+            "http://localhost:3000/books"
+            (JE.encode 0 <| JE.list L.bookEncoder books)
         |> PT.clickButton "Next"
         |> PT.clickButton "Prev"
         |> PT.expectViewHas [ S.text "Old book" ]
@@ -114,9 +128,9 @@ appTest =
       in
         app
         |> PT.simulateHttpOk
-          "GET"
-          "http://localhost:3000/books"
-          (JE.encode 0 <| JE.list L.bookEncoder books)
+            "GET"
+            "http://localhost:3000/books"
+            (JE.encode 0 <| JE.list L.bookEncoder books)
         |> PT.clickButton "Next"
         |> PT.expectViewHasNot [ S.text "Old book" ]
   ]
