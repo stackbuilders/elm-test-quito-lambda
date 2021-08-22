@@ -45,7 +45,7 @@ fuzzJSON =
   [ fuzz F.string "decode/encode are idempotent" <|
     \str ->
       let
-        book = L.Book str str (L.Name str)
+        book = L.Book str str (L.Name str) Nothing
       in
         JE.encode 0 (L.bookEncoder book)
         |> JD.decodeString L.bookDecoder
@@ -55,7 +55,7 @@ fuzzJSON =
 -- Integration test
 
 fixture : L.Book
-fixture = L.Book "Foo" "..." L.Anonymous
+fixture = L.Book "Foo" "..." L.Anonymous Nothing
 
 app : PT.ProgramTest L.Model L.Msg L.Eff
 app =
