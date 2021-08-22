@@ -3,22 +3,27 @@
     { "title": "Iliada"
     , "synopsis": "La batalla entre aqueos y troyanos"
     , "author": "Homero"
+    , "picture": "https://www.mrbooks.com/mrbooks/portadas/9788494745867.jpg"
     },
     { "title": "Odisea"
     , "synopsis": "Las aventuras de Odiseo en su camino a Ítaca desde Troya"
     , "author": "Homero"
+    , "picture": "https://image.isu.pub/200225175226-59e9e033221eb509822f0b17a206ecbd/jpg/page_1.jpg"
     },
     { "title": "El libro que nunca escribí"
     , "synopsis": "Habla sobre las cosas que nunca dije y las letras que no escribí"
     , "author": null
+    , "picture": null
     },
     { "title": "La rebelión de la granja"
     , "synopsis": "¿Cómo terminará la rebelión de los animales?"
     , "author": "George Orwell"
+    , "picture": "https://m.media-amazon.com/images/I/510+j0PdQjL.jpg"
     },
     { "title": "Un mundo feliz"
     , "synopsis": "El mundo ideal donde todos son felices, ¿o no?"
     , "author": "Aldous Huxley"
+    , "picture": "https://images-na.ssl-images-amazon.com/images/I/91pNEZqWGIS.jpg"
     }
   ]
 }

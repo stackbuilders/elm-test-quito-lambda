@@ -3,6 +3,7 @@ module Library exposing (..)
 import Browser as B
 import Html as H
 import Html.Events as HE
+import Html.Attributes as HA
 import Http
 import Json.Decode as D
 import Json.Encode as E
@@ -22,6 +23,7 @@ type alias Book =
   { title : String
   , synopsis : String
   , author : AuthorName
+  , picture : Maybe String
   }
 
 type Msg
@@ -49,10 +51,11 @@ getBooks =
 -- JSON
 bookDecoder : D.Decoder Book
 bookDecoder =
-  D.map3 Book
+  D.map4 Book
   (D.field "title" D.string)
   (D.field "synopsis" D.string)
   (D.field "author" authorNameDecoder)
+  (D.field "picture" (D.nullable <| D.string))
 
 authorNameDecoder : D.Decoder AuthorName
 authorNameDecoder =
@@ -78,18 +81,22 @@ authorNameEncoder an =
 -- View
 view : Model -> H.Html Msg
 view model =
-  H.div []
-  <| viewErrorsOrBooks model ++ [viewActions]
+  H.div
+  [HA.class "library"]
+  <| viewErrorsOrBooks model :: [viewActions]
 
 viewErrorsOrBooks model =
   if List.isEmpty model.errors
   then viewBooks model.start model.books
   else viewErrors model.errors
 
-viewErrors = List.map H.text
+viewErrors errs =
+  H.div [ HA.class "errors" ] <| List.map H.text errs
 
 viewBooks start books =
-  List.map viewBook (slice start (start + 3) books)
+  H.div
+  [ HA.class "books" ]
+  <| List.map viewBook (slice start (start + 3) books)
 
 viewActions : H.Html Msg
 viewActions =
@@ -102,8 +109,12 @@ viewActions =
 viewBook : Book -> H.Html Msg
 viewBook book =
     H.div
-    []
+    [ HA.class "book" ]
     [ H.h1 [][ H.text book.title  ]
+    , H.img
+      [ HA.src <| Maybe.withDefault "../assets/book.png" book.picture
+      , HA.height 100
+      ][]
     , H.p [][ H.text book.synopsis  ]
     , H.i [][ H.text <| "By "++ authorToString book.author  ]
     ]
