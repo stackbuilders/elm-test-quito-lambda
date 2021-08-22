@@ -75,8 +75,6 @@ runEff eff =
       SHttp.get
       { url = url, expect = SHttp.expectJson onResult (JD.list L.bookDecoder) }
 
-
-
 appTest : Test
 appTest =
   describe "app"
