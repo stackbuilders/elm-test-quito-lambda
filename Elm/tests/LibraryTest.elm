@@ -1,13 +1,16 @@
 module LibraryTest exposing (..)
 
-import Test exposing (..)
 import Expect as E
+import Fuzz as F
+import Test exposing (..)
+import Test.Html.Selector as S
+
 import Json.Decode as JD
 import Json.Encode as JE
+
 import Library as L
-import Fuzz as F
+
 import ProgramTest as PT
-import Test.Html.Selector as S
 import SimulatedEffect.Cmd as SCmd
 import SimulatedEffect.Http as SHttp
 
