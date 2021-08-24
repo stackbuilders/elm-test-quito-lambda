@@ -1,0 +1,16 @@
+{
+  "name": "Elm",
+  "version": "1.0.0",
+  "description": "## Create a project",
+  "main": "main.js",
+  "dependencies": {},
+  "devDependencies": {
+    "elm-live": "^4.0.0-rc.1"
+  },
+  "scripts": {
+    "start": "elm-live src/Library.elm --open --start-page=index.html -- --output=main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
