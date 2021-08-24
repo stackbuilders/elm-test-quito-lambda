@@ -4,6 +4,7 @@
   "description": "## Create a project",
   "main": "index.js",
   "scripts": {
+    "start": "elm-live src/Library.elm --open --start-page=index.html -- --output=main.js",
     "test": "elm-test"
   },
   "keywords": [],
