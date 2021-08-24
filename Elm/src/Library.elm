@@ -70,7 +70,14 @@ bookEncoder book =
   [ ("title", E.string book.title)
   , ("synopsis", E.string book.synopsis)
   , ("author", authorNameEncoder book.author)
+  , ("picture", withEncode book.picture E.string)
   ]
+
+withEncode : Maybe a -> (a -> E.Value) -> E.Value
+withEncode m f =
+  case m of
+    Just a -> f a
+    Nothing -> E.null
 
 authorNameEncoder : AuthorName -> E.Value
 authorNameEncoder an =
