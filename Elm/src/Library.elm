@@ -148,12 +148,14 @@ update msg model =
            then model.start + 1
            else model.start
       }, Cmd.none)
+
     Prev ->
       ({ model | start =
         if model.start > 0
            then model.start - 1
            else model.start
        }, Cmd.none)
+
     GetBooks (Ok books) ->
       ({ model | books = books, start = 0 }, Cmd.none)
 
