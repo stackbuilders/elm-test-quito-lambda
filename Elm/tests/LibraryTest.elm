@@ -61,6 +61,8 @@ fuzzJSON =
       |> E.equal (Ok book)
   ]
 
+-- Unit tests `update` or `view`?
+
 -- Integration test
 
 app : PT.ProgramTest L.Model L.Msg L.Eff
