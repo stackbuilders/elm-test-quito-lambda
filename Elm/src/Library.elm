@@ -7,6 +7,7 @@ import Html.Attributes as HA
 import Http
 import Json.Decode as D
 import Json.Encode as E
+import Visible exposing (..)
 
 
 -- Eff
@@ -32,8 +33,7 @@ run eff =
 
 -- Model
 type alias Model =
-  { books: List Book
-  , start: Int
+  { visible: Visible Book
   , errors: List String
   }
 
@@ -55,9 +55,8 @@ type Msg
 
 init : (Model, Eff)
 init =(
-  { books = []
-  , start = 0
-  , errors = []
+  { errors = []
+  , visible = mkVisible 3 []
   }, getBooks)
 
 -- HTTP
@@ -115,16 +114,16 @@ view model =
 
 viewErrorsOrBooks model =
   if List.isEmpty model.errors
-  then viewBooks model.start model.books
+  then viewBooks model
   else viewErrors model.errors
 
 viewErrors errs =
   H.div [ HA.class "errors" ] <| List.map H.text errs
 
-viewBooks start books =
+viewBooks model =
   H.div
   [ HA.class "books" ]
-  <| List.map viewBook (slice start (start + 3) books)
+  <| List.map viewBook (takeVisible model.visible)
 
 viewActions : H.Html Msg
 viewActions =
@@ -153,37 +152,20 @@ authorToString author =
     Name name -> name
     Anonymous -> "Anonymous"
 
-slice : Int -> Int -> List a -> List a
-slice start end list =
-  List.drop start
-  <| List.take end
-  <| list
-
 -- Update
 update : Msg -> Model -> (Model, Eff)
 update msg model =
   case msg of
     Next ->
-      ({ model | start = up model.start model.books
+      ({ model | visible = up model.visible
       }, NoOp)
     Prev ->
-      ({ model | start = down model.start }, NoOp)
+      ({ model | visible = down model.visible }, NoOp)
     GetBooks (Ok books) ->
-      ({ model | books = books, start = 0 }, NoOp)
+      ({ model |  visible = mkVisible 3 books }, NoOp)
 
     GetBooks _ ->
-      ({ model | books = [], errors = ["Could not get books"], start = 0 }, NoOp)
-
-
-up start books =
-    if start < List.length books - 3
-       then start + 1
-       else start
-
-down start =
-  if start > 0
-     then start - 1
-     else start
+      ({ model | errors = ["Could not get books"], visible = mkVisible 3 [] }, NoOp)
 
 -- Main
 main : Program () Model Msg

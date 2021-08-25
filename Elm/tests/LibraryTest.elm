@@ -9,6 +9,7 @@ import Json.Decode as JD
 import Json.Encode as JE
 
 import Library as L
+import Visible as V
 
 import ProgramTest as PT
 import SimulatedEffect.Cmd as SCmd
@@ -21,12 +22,17 @@ upTest =
   describe "up"
   [ test "gives start = 0 and books = [1,2,3,4,5] returns 1" <|
     \_ ->
-      L.up 0 [1, 2, 3, 4, 5]
-      |> E.equal 1
+      V.mkVisible 3 [1, 2, 3, 4, 5]
+      |> V.up
+      |> V.takeVisible
+      |> E.equal [2, 3, 4]
   , test "given start = 2 and books = [1,2,3,4,5] returns 2" <|
     \_ ->
-      L.up 2 [1, 2, 3, 4, 5]
-      |> E.equal 2
+      V.mkVisible 3 [1, 2, 3, 4, 5]
+      |> V.up
+      |> V.up
+      |> V.takeVisible
+      |> E.equal [3, 4, 5]
   ]
 
 downTest : Test
@@ -34,12 +40,16 @@ downTest =
   describe "down"
   [ test "given start = 1 returns 0" <|
     \_ ->
-      L.down 1
-      |> E.equal 0
+      V.mkVisible 3 [1, 2, 3, 4, 5]
+      |> V.down
+      |> V.takeVisible
+      |> E.equal [1, 2, 3]
   , test "given start = 0 returns 0" <|
     \_ ->
-      L.down 0
-      |> E.equal 0
+      V.mkVisible 2 [1, 2, 3, 4, 5]
+      |> V.down
+      |> V.takeVisible
+      |> E.equal [1, 2]
   ]
 
 -- Fuzzy test
