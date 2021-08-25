@@ -42,23 +42,26 @@ downTest =
       |> E.equal 0
   ]
 
+-- Fuzzy test
+
+bookFuzzer : F.Fuzzer L.Book
+bookFuzzer =
+  F.map L.Book F.string
+  |> F.andMap F.string
+  |> F.andMap (F.oneOf [F.constant L.Anonymous, F.map L.Name F.string])
+  |> F.andMap (F.maybe F.string)
+
 fuzzJSON : Test
 fuzzJSON =
   describe "(decode . encode) x == x"
-  [ fuzz F.string "decode/encode are idempotent" <|
-    \str ->
-      let
-        book = L.Book str str (L.Name str) Nothing
-      in
-        JE.encode 0 (L.bookEncoder book)
-        |> JD.decodeString L.bookDecoder
-        |> E.equal (Ok book)
+  [ fuzz bookFuzzer "decode/encode are idempotent" <|
+    \book ->
+      JE.encode 0 (L.bookEncoder book)
+      |> JD.decodeString L.bookDecoder
+      |> E.equal (Ok book)
   ]
 
 -- Integration test
-
-fixture : L.Book
-fixture = L.Book "Foo" "..." L.Anonymous Nothing
 
 app : PT.ProgramTest L.Model L.Msg L.Eff
 app =
@@ -76,7 +79,12 @@ runEff eff =
     L.NoOp -> SCmd.none
     L.GetBookList { url, onResult } ->
       SHttp.get
-      { url = url, expect = SHttp.expectJson onResult (JD.list L.bookDecoder) }
+      { url = url,
+        expect = SHttp.expectJson onResult (JD.list L.bookDecoder)
+      }
+
+fixture : L.Book
+fixture = L.Book "Foo" "..." L.Anonymous Nothing
 
 appTest : Test
 appTest =
